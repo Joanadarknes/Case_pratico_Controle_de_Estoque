@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#171719">
+    <meta name="description" content="Controle simples de estoque.">
+    <title>Controle de Estoque</title>
+    <link rel="stylesheet" href="/styles.css?v=7">
+    <script src="/app.js?v=7" defer></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Itaú — controle de estoque">
+        <img src="/itau-logo.png" alt="Itaú" width="42" height="42">
+      </a>
+      <span class="topbar-title">CONTROLE DE ESTOQUE</span>
+      <div class="header-actions">
+        <button class="button button-orange" id="open-create" type="button">+ Novo produto</button>
+      </div>
+    </header>
+
+    <main class="page">
+      <nav class="main-tabs" role="tablist" aria-label="Seções do projeto">
+        <button id="tab-stock" class="main-tab active" type="button" role="tab" aria-selected="true" aria-controls="stock-view">Estoque</button>
+        <button id="tab-case" class="main-tab" type="button" role="tab" aria-selected="false" aria-controls="case-view">Sobre o case</button>
+      </nav>
+
+      <section id="stock-view" role="tabpanel" aria-labelledby="tab-stock">
+      <div class="page-title">
+        <div><h1>Estoque</h1><p>Visão geral de todos os produtos e quantidades.</p></div>
+      </div>
+
+      <section class="balances" aria-label="Resumo de todo o estoque">
+        <article class="balance balance-dark"><div class="balance-top"><span>Produtos cadastrados</span><span class="balance-icon">#</span></div><strong id="metric-products">0</strong><small>itens no catálogo</small></article>
+        <article class="balance"><div class="balance-top"><span>Unidades totais</span><span class="balance-icon">▦</span></div><strong id="metric-total">0</strong><small>em todo o estoque</small></article>
+        <article class="balance"><div class="balance-top"><span>Disponíveis</span><span class="balance-icon icon-green">✓</span></div><strong id="metric-available">0</strong><small>prontas para movimentar</small></article>
+        <article class="balance"><div class="balance-top"><span>Reservadas</span><span class="balance-icon icon-amber">⌑</span></div><strong id="metric-reserved">0</strong><small>separadas para pedidos</small></article>
+        <article class="balance"><div class="balance-top"><span>Bloqueadas</span><span class="balance-icon icon-red">!</span></div><strong id="metric-blocked">0</strong><small>indisponíveis para uso</small></article>
+      </section>
+
+      <section class="panel catalog-panel">
+        <div class="panel-heading catalog-heading">
+          <div><h2>Todos os produtos</h2><span id="product-count" class="muted">0 produtos</span></div>
+          <label class="search-box"><span class="sr-only">Buscar produto</span><input id="product-search" type="search" placeholder="Buscar produto ou código" autocomplete="off"></label>
+        </div>
+        <div class="table-scroll">
+          <table class="product-table">
+            <thead><tr><th>PRODUTO / IDENTIFICAÇÃO</th><th>TOTAL</th><th>DISPONÍVEL</th><th>RESERVADO</th><th>BLOQUEADO</th><th></th></tr></thead>
+            <tbody id="product-rows"><tr><td colspan="6" class="empty-cell">Carregando produtos...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="operations-grid">
+      <section class="panel movement-panel" id="movement-panel">
+        <div class="panel-heading"><div><h2>Movimentar estoque</h2><span id="selected-product" class="muted">Selecione um produto na lista</span></div></div>
+        <form id="movement-form" class="movement-form">
+          <label class="field"><span>Operação</span>
+            <span class="select-control">
+              <span class="select-symbol" aria-hidden="true">↕</span>
+              <select id="action-picker" name="action">
+                <option value="entry">Entrada</option>
+                <option value="withdrawal">Saída</option>
+                <option value="reservation">Reservar</option>
+                <option value="block">Bloquear</option>
+              </select>
+              <span class="select-chevron" aria-hidden="true"></span>
+            </span>
+          </label>
+          <label class="field"><span>Quantidade</span><input id="quantity-input" name="quantity" type="number" min="1" step="1" value="1" required></label>
+          <label class="field reference-field" id="reference-field" hidden><span id="reference-label">Pedido / motivo</span><input id="reference-input" name="reference" type="text" maxlength="100" placeholder="Ex.: pedido-123"></label>
+          <button class="button button-orange submit-button" type="submit">Registrar</button>
+        </form>
+      </section>
+
+      <section class="panel commitments-panel">
+        <div class="panel-heading"><div><h2>Reservas e bloqueios</h2><span id="commitment-product" class="muted">Selecione um produto</span></div><span id="commitment-count" class="muted">0 registros</span></div>
+        <div id="commitment-list" class="commitment-list"><p class="empty-state">Selecione um produto para consultar os registros.</p></div>
+      </section>
+      </div>
+      </section>
+
+      <section id="case-view" class="case-view" role="tabpanel" aria-labelledby="tab-case" hidden>
+        <div class="page-title">
+          <h1>Sobre o case</h1>
+          <p>O que o sistema acompanha e as regras que mantêm cada saldo em ordem.</p>
+        </div>
+        <article class="case-card">
+          <section class="case-section">
+            <h2>1. Objetivo</h2>
+            <p>A ideia é simples: saber o que existe no estoque e em que situação está cada unidade. O sistema mostra o saldo livre para uso, o que já foi reservado e o que está bloqueado.</p>
+            <p>Este projeto também registra as escolhas feitas para transformar essas regras em uma solução clara, confiável e fácil de evoluir. A IA foi usada como apoio durante o desenvolvimento, com revisão das sugestões antes de incorporá-las.</p>
+          </section>
+          <section class="case-section">
+            <h2>2. Contexto</h2>
+            <p>Cada produto tem um nome e um código para facilitar a identificação. Para ele, acompanhamos:</p>
+            <ul class="case-list case-grid-list">
+              <li>Identificação do produto;</li>
+              <li>Quantidade total;</li>
+              <li>Quantidade disponível;</li>
+              <li>Quantidade reservada;</li>
+              <li>Quantidade bloqueada.</li>
+            </ul>
+            <p>Um mesmo produto pode ter várias reservas e bloqueios ao mesmo tempo, cada qual ligado ao seu próprio pedido ou motivo. Assim, dá para consultar e liberar cada registro sem confundir um com o outro.</p>
+          </section>
+          <section class="case-section">
+            <h2>3. Funcionalidades</h2>
+            <ul class="case-list feature-list">
+              <li><strong>Entrada</strong><span>Receber unidades e somá-las ao estoque do produto.</span></li>
+              <li><strong>Saída</strong><span>Retirar unidades. A saída só acontece quando há saldo disponível suficiente.</span></li>
+              <li><strong>Reservar</strong><span>Separar unidades disponíveis para um pedido. Cada reserva ganha um código próprio para consulta e liberação.</span></li>
+              <li><strong>Bloquear</strong><span>Deixar unidades temporariamente indisponíveis, por exemplo, para análise ou avaria. Cada bloqueio também pode ser consultado e liberado.</span></li>
+              <li><strong>Liberar</strong><span>Encerrar uma reserva ou um bloqueio e devolver as unidades ao saldo disponível.</span></li>
+              <li><strong>Consultar</strong><span>Ver o total de unidades e quanto está disponível, reservado ou bloqueado.</span></li>
+            </ul>
+          </section>
+          <section class="case-section case-rules">
+            <h2>4. Regras gerais</h2>
+            <p>Em qualquer movimentação, os números precisam continuar fechando: <strong>total = disponível + reservado + bloqueado</strong>. Por isso:</p>
+            <ul class="case-list">
+              <li>não dá para retirar mais unidades do que estão disponíveis;</li>
+              <li>uma reserva ou um bloqueio também não pode passar do saldo disponível;</li>
+              <li>se uma operação não for válida, o estoque fica como estava antes da tentativa.</li>
+            </ul>
+            <p>As quantidades precisam ser números inteiros positivos. Cada reserva ou bloqueio tem seu próprio identificador e não pode ser liberado duas vezes. As premissas adicionais estão explicadas no README.</p>
+          </section>
+        </article>
+      </section>
+    </main>
+
+    <dialog id="create-dialog" class="create-dialog" aria-labelledby="create-title" aria-describedby="create-description">
+      <form id="create-form" method="dialog">
+        <div class="dialog-layout">
+          <aside class="dialog-visual" aria-hidden="true">
+            <img class="dialog-logo" src="/itau-logo.png" alt="">
+            <div class="box-illustration">
+              <span class="box-shadow"></span>
+              <span class="box-shape box-back"></span>
+              <span class="box-shape box-front"><i></i><b></b></span>
+              <span class="box-label">SKU<br><strong>001</strong></span>
+            </div>
+            <div class="visual-copy"><span>SEU CATÁLOGO</span><strong>Um item de cada vez.<br>Tudo no lugar.</strong></div>
+            <div class="visual-step"><span>01</span><i></i><span>CADASTRO</span></div>
+          </aside>
+          <div class="dialog-main">
+            <div class="dialog-heading">
+              <div class="dialog-step">NOVO ITEM <span>PASSO 1 DE 1</span></div>
+              <button class="close-button" type="button" id="close-create" aria-label="Fechar janela">×</button>
+            </div>
+            <h2 id="create-title">Adicionar produto</h2>
+            <p id="create-description" class="dialog-copy">Qual produto você quer acompanhar?</p>
+            <label class="field" for="product-id-input"><span>Código / identificação</span></label>
+            <div class="product-input-wrap">
+              <span class="input-prefix" aria-hidden="true">#</span>
+              <input id="product-id-input" type="text" maxlength="100" placeholder="Ex.: SKU-123" autocomplete="off" required>
+            </div>
+            <label class="field product-name-label" for="product-name-input"><span>Nome do produto</span></label>
+            <div class="product-input-wrap name-input-wrap">
+              <span class="input-prefix" aria-hidden="true">Aa</span>
+              <input id="product-name-input" type="text" maxlength="100" placeholder="Ex.: Café em grãos" autocomplete="off" autofocus required>
+            </div>
+            <div class="dialog-note" hidden><span aria-hidden="true">↳</span><p id="product-dialog-note"></p></div>
+            <div class="dialog-actions"><button class="button button-light" type="button" id="cancel-create">Cancelar</button><button class="button button-orange" id="product-submit" type="submit">Cadastrar <span aria-hidden="true">→</span></button></div>
+          </div>
+        </div>
+      </form>
+    </dialog>
+    <dialog id="confirm-dialog" class="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+      <section class="confirm-card">
+        <button class="close-button confirm-close" id="confirm-close" type="button" aria-label="Fechar janela">×</button>
+        <div class="confirm-mark" aria-hidden="true"><span>!</span></div>
+        <h2 id="confirm-title">Confirmar ação</h2>
+        <p id="confirm-message" class="confirm-message"></p>
+        <div class="confirm-actions">
+          <button class="button button-light" id="confirm-cancel" type="button">Voltar</button>
+          <button class="button button-orange" id="confirm-accept" type="button">Confirmar</button>
+        </div>
+      </section>
+    </dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
